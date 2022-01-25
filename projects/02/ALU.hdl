@@ -25,6 +25,15 @@
 // if (no == 1) set out = !out   // bitwise not
 // if (out == 0) set zr = 1
 // if (out < 0) set ng = 1
+// CHIP IsNeg {
+//     IN in[16];
+//     OUT out;
+
+//     PARTS:
+//     // Put your code here:
+//     And(a=in[15], b=true, out=out);
+// }
+
 
 CHIP ALU {
     IN  
@@ -42,5 +51,32 @@ CHIP ALU {
         ng; // 1 if (out < 0),  0 otherwise
 
     PARTS:
-   // Put you code here:
+    // Put you code here:
+    //zx x=x y=y
+    Mux16(a=x, b=false, sel=zx, out=zxout);
+    //nx x=zxout, y=y
+    Not16(in=zxout, out=notzxout);
+    Mux16(a=zxout, b=notzxout, sel=nx, out=nxout);
+
+    //zy x=nxout y=y
+    Mux16(a=y, b=false, sel=zy, out=zyout);
+    //ny x=nxout, y=zyout
+    Not16(in=zyout, out=notzyout);
+    Mux16(a=zyout, b=notzyout, sel=ny, out=nyout);
+
+
+    //f x=nxout y=nyout
+    Add16(a=nxout, b=nyout, out=xaddy); 
+    And16(a=nxout, b=nyout, out=xandy);
+    Mux16(a=xandy, b=xaddy, sel=f, out=fout);
+    
+    //no in=fout
+    Not16(in=fout, out=notfout);
+    Mux16(a=fout, b=notfout, sel=no, out[15]=ng, out[0..7]=out1, out[8..15]=out2, out=out);
+
+    Or8Way(in=out1, out=zr1);
+    Or8Way(in=out2, out=zr2);
+    Or(a=zr1, b=zr2, out=zr3);
+    Not(in=zr3, out=zr);
+    
 }
