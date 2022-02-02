@@ -15,4 +15,8 @@ CHIP Bit {
 
     PARTS:
     // Put your code here:
+    // choose between dff_out or in
+    Mux(a=outstore, b=in, sel=load, out=muxout);
+    DFF(in=muxout, out=out, out=outstore);
+
 }
